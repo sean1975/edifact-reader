@@ -1,0 +1,18 @@
+{
+    "name": "Edifact Reader",
+    "version": "1.0",
+    "description": "Edifact reader",
+    "permissions": ["storage"],
+    "content_scripts": [
+        {
+            "matches": [
+                "file:///*",
+                "https://loggingfacility.amadeus.net/*"
+            ],
+            "run_at": "document_idle",
+            "css": ["edifact.css"],
+            "js": ["content.js"]
+        }
+    ],
+    "manifest_version": 2
+}
