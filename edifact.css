@@ -15,6 +15,15 @@ input + label + div {
 input:checked + label + div {
   max-height: none;
 }
+input:hover + label {
+  background-color: yellow;
+}
+input:hover + label + div {
+  background-color: yellow;
+}
+span:hover {
+  background-color: yellow;
+}
 label::before {
   content: ' ';
   display: inline-block;
