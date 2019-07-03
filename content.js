@@ -50,7 +50,7 @@ function parseBLB(image) {
       return parseUNH(message);
     }
   } else {
-    return image.content.replace(/"/gm, "\\\"");
+    return image.content;
   }
 }
 
@@ -70,7 +70,7 @@ function parseUNH(message) {
       message.current = message.next + 1;
       break;
     } else if (elements[0] == 'DCX') {
-      let escaped = segment.split('+')[2].replace(/</gm, "&lt;").replace(/>/gm, "&gt;").replace(/"/gm, '\\"');
+      let escaped = segment.split('+')[2].replace(/</gm, "&lt;").replace(/>/gm, "&gt;");
       console.log("DCX " + escaped);
       result.push({"DCX": escaped});
     } else if (elements[0] == 'BLB') {
