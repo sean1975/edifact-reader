@@ -7,7 +7,7 @@
         {
             "matches": [
                 "file:///*",
-                "https://loggingfacility.amadeus.net/*"
+                "https://loggingfacility.amadeus.com/v3/*format=tts"
             ],
             "run_at": "document_idle",
             "css": ["edifact.css"],
