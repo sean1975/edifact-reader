@@ -9,8 +9,7 @@ function isEdifact(text) {
 function normalize(text) {
   let normalized = text.replace(/\r?\n+/gm,'')
                        .replace(/'&/gm,'\'')
-                       .replace(/\\/gm,'');
-                       //.replace(/'\\UNT/gm,'UNT');
+                       .replace(/\\([^\\])/gm,"$1");
   return normalized;
 }
 
@@ -61,6 +60,8 @@ function parseUNH(message) {
     message.next = message.content.indexOf("'", message.current);
     if (message.next > message.content.length) {
       break;
+    } else if (message.next < 0) {
+      message.next = message.content.length;
     }
     let segment = message.content.substring(message.current, message.next);
     let elements = segment.split('+');
