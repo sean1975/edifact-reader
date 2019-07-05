@@ -16,13 +16,13 @@ input:checked + label + div {
   max-height: none;
 }
 input:hover + label {
-  background-color: yellow;
+  background-color: skyblue;
 }
 input:hover + label + div {
-  background-color: yellow;
+  background-color: skyblue;
 }
 span:hover {
-  background-color: yellow;
+  background-color: skyblue;
 }
 label::before {
   content: ' ';
