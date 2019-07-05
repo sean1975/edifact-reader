@@ -70,9 +70,9 @@ function parseUNH(message) {
       message.current = message.next + 1;
       break;
     } else if (elements[0] == 'DCX') {
-      let escaped = segment.split('+')[2].replace(/</gm, "&lt;").replace(/>/gm, "&gt;");
-      console.log("DCX " + escaped);
-      result.push({"DCX": escaped});
+      let dcxImage = segment.split('+')[2];
+      console.log("DCX " + dcxImage);
+      result.push({"DCX": dcxImage});
     } else if (elements[0] == 'BLB') {
       let blbSize = elements[1];
       let blbFormat = elements[2];
@@ -137,14 +137,33 @@ function edifact2json(text) {
 
 var id = 0;
 
+function displayString(str, level) {
+  return `
+<div class="edifact-level-${level}">
+  <span>${str}</span>
+</div>`.trim();
+}
+
+function displayXML(xmlString, level) {
+  return displayString(xmlString.replace(/</gm, "&lt;").replace(/>/gm, "&gt;"), level);
+}
+
+function displayObject(jsonObject, level) {
+  id++;
+  return `
+<div class="edifact-level-${level}">
+  <input id="${id + '-' + name.substring(0,3)}" type="checkbox" checked>
+  <label for="${id + '-' + name.substring(0,3)}">${name}</label>
+  <div>
+    ${name == 'DCX' ? displayXML(jsonObject[name], level+1) : display(jsonObject[name], level+1)}
+  </div>
+</div>`.trim();
+}
+
 function display(jsonObject, level) {
   let result = "";
   if (typeof jsonObject === 'string') {
-    result = `
-<div class="edifact-level-${level}">
-  <span>${jsonObject}</span>
-</div>`.trim();
-    return result;
+    return displayString(jsonObject, level);
   }
   if (jsonObject && typeof jsonObject === 'object') {
     if (jsonObject.constructor === Array) {
@@ -153,15 +172,7 @@ function display(jsonObject, level) {
       }
     } else if (jsonObject.constructor === Object) {
       for (name in jsonObject) {
-        id++;
-        result += `
-<div class="edifact-level-${level}">
-  <input id="${id + '-' + name.substring(0,3)}" type="checkbox" checked>
-  <label for="${id + '-' + name.substring(0,3)}">${name}</label>
-  <div>
-    ${display(jsonObject[name], level+1)}
-  </div>
-</div>`.trim();
+        result += displayObject(jsonObject, level);
       }
     }
   }
@@ -170,7 +181,6 @@ function display(jsonObject, level) {
 
 function edifact2html(text) {
   let jsonObject = edifact2json(text);
-  //let jsonString = JSON.stringify(result);
   return `
 <div class="edifact-header">
 </div>
