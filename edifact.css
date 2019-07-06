@@ -21,9 +21,6 @@ input:hover + label {
 input:hover + label + div {
   background-color: skyblue;
 }
-span:hover {
-  background-color: skyblue;
-}
 label::before {
   content: ' ';
   display: inline-block;
@@ -40,4 +37,12 @@ label::before {
 }
 input:checked + label::before {
   transform: rotate(90deg) translateX(-3px);
+}
+.edifact-segment-tag, .xml-tag {
+  color: purple;
+  font-weight: bold;
+}
+.edifact-message-type, .xml-attribute-value {
+  color: blue;
+  font-weight: normal;
 }

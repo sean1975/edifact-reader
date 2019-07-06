@@ -84,7 +84,9 @@ function parseUNH(message) {
         format: blbFormat
       };
       console.log("BLB " + blbImage.content);
-      result.push({"BLB": parseBLB(blbImage)});
+      let blbResult = {};
+      blbResult[segment.substring(0,offset)] = parseBLB(blbImage);
+      result.push(blbResult);
       message.next = blbEnd; 
     } else if (elements[0] == 'GCX') {
       let gcxSize = elements[1];
@@ -138,22 +140,44 @@ function edifact2json(text) {
 function displayString(str, level) {
   return `
 <div class="edifact-level-${level}">
-  <span>${str}</span>
+  <span class="edifact-segment">
+    <span class="edifact-segment-tag">${str.substring(0,3)}</span><span class="edifact-data-elements">${str.substring(3)}</span>
+  </span>
+</div>`.trim();
+}
+
+function displayBinary(str, level) {
+  return `
+<div class="edifact-level-${level}">
+  <span class="edifact-binary">
+    ${str.replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;")}
+  </span>
 </div>`.trim();
 }
 
 function displayXMLNode(node, level) {
   let result = `
-<div class="edifact-level-${level} xml-element">
-  <span class="xml-tag">&lt;${node.nodeName}
+<div class="edifact-level-${level}">
+  <div class="xml-element">
+    &lt;<span class="xml-tag">${node.nodeName}</span>
 `.trim();
   let attributes = node.attributes;
   for (let i=0; i<attributes.length; i++) {
-    result += ` <span class="xml-attribute">${attributes[i].nodeName}="${attributes[i].nodeValue}"</span>`;
+    result += `
+      &nbsp;<span class="xml-attribute-name">${attributes[i].nodeName}</span>=<span class="xml-attribute-value">"${attributes[i].nodeValue}"</span>
+`.trim();
   }
   let children = node.childNodes;
   if (!children || children.length == 0) {
-    result += `/&gt;</span></div>`;
+    result += `
+    /&gt;
+  </div>
+</div>
+`.trim();
   } else {
     result += `&gt;</span>`;
     for (let i=0; i<children.length ;i++) {
@@ -162,7 +186,10 @@ function displayXMLNode(node, level) {
       }
       result += displayXMLNode(node.childNodes[i], level+1);
     }
-    result += `<span class="xml-tag">&lt;/${node.nodeName}&gt;</span></div>`;
+    result += `
+    &lt;/<span class="xml-tag">${node.nodeName}</span>&gt;
+  </div>
+</div>`.trim();
   }
   return result;
 }
@@ -178,14 +205,42 @@ var id = 0;
 
 function displayObject(jsonObject, level) {
   id++;
-  return `
+  let tag = name.substring(0,3);
+  let value = name.substring(3);
+  if (tag == 'UNH') {
+    let elements = name.split('+');
+    let components = elements[2].split(':');
+    let type = components[0];
+    let ver = components[1];
+    let rev = components[2];
+    let org = components[3];
+    value = `+${elements[1]}+<span class="edifact-message-type">${type}</span>:<span class="edifact-message-version">${ver}</span>:<span class="edifact-message-revision">${rev}</span>:<span class="edifact-message-organization">${org}</span>
+`.trim();
+    for (let i=3; i<elements.length; i++) {
+      value += `+${elements[i]}`.trim();
+    }
+  }
+  let result = `
 <div class="edifact-level-${level}">
-  <input id="${id + '-' + name.substring(0,3)}" type="checkbox" checked>
-  <label for="${id + '-' + name.substring(0,3)}">${name}</label>
+  <input id="${id + '-' + tag}" type="checkbox" checked>
+  <label for="${id + '-' + tag}">
+    <span class="edifact-segment">
+      <span class="edifact-segment-tag">${tag}</span><span class="edifact-data-elements">${value}</span>
+    </span>
+  </label>
   <div>
-    ${name == 'DCX' ? displayXML(jsonObject[name], level+1) : display(jsonObject[name], level+1)}
+`.trim();
+  if (tag == 'DCX') {
+    result += displayXML(jsonObject[name], level+1);
+  } else if (tag == 'BLB' && value.split('+')[2] == 'B') {
+    result += displayBinary(jsonObject[name], level+1);
+  } else {
+    result += display(jsonObject[name], level+1);
+  }
+  result += `
   </div>
 </div>`.trim();
+  return result;
 }
 
 function display(jsonObject, level) {
