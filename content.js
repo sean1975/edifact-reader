@@ -135,8 +135,6 @@ function edifact2json(text) {
   return result;
 }
 
-var id = 0;
-
 function displayString(str, level) {
   return `
 <div class="edifact-level-${level}">
@@ -144,9 +142,39 @@ function displayString(str, level) {
 </div>`.trim();
 }
 
-function displayXML(xmlString, level) {
-  return displayString(xmlString.replace(/</gm, "&lt;").replace(/>/gm, "&gt;"), level);
+function displayXMLNode(node, level) {
+  let result = `
+<div class="edifact-level-${level} xml-element">
+  <span class="xml-tag">&lt;${node.nodeName}
+`.trim();
+  let attributes = node.attributes;
+  for (let i=0; i<attributes.length; i++) {
+    result += ` <span class="xml-attribute">${attributes[i].nodeName}="${attributes[i].nodeValue}"</span>`;
+  }
+  let children = node.childNodes;
+  if (!children || children.length == 0) {
+    result += `/&gt;</span></div>`;
+  } else {
+    result += `&gt;</span>`;
+    for (let i=0; i<children.length ;i++) {
+      if (children[i].nodeType != 1) {
+        continue;
+      }
+      result += displayXMLNode(node.childNodes[i], level+1);
+    }
+    result += `<span class="xml-tag">&lt;/${node.nodeName}&gt;</span></div>`;
+  }
+  return result;
 }
+
+function displayXML(xmlString, level) {
+  let parser = new DOMParser();
+  let xmlDoc = parser.parseFromString(xmlString,"text/xml");
+  let doc = xmlDoc.documentElement;
+  return displayXMLNode(doc, level);
+}
+
+var id = 0;
 
 function displayObject(jsonObject, level) {
   id++;
