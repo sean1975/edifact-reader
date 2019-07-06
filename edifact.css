@@ -15,12 +15,6 @@ input + label + div {
 input:checked + label + div {
   max-height: none;
 }
-input:hover + label {
-  background-color: skyblue;
-}
-input:hover + label + div {
-  background-color: skyblue;
-}
 label::before {
   content: ' ';
   display: inline-block;
@@ -37,6 +31,10 @@ label::before {
 }
 input:checked + label::before {
   transform: rotate(90deg) translateX(-3px);
+}
+div > span.edifact-segment {
+  padding-left: 10px;
+  margin-left: .7rem;
 }
 .edifact-segment-tag, .xml-tag {
   color: purple;
