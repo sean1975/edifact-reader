@@ -12,7 +12,7 @@ function normalize(text) {
                        .replace(/''/gm, '')
                        .replace(/\r?\n+/gm,'')
                        .replace(/'&/gm,'\'')
-                       .replace(/\\([^\\])/gm,"$1");
+                       .replace(/\\([^\\x])/gm,"$1");
   return normalized;
 }
 
@@ -81,7 +81,7 @@ function parseUNH(message) {
       let blbFormat = elements[2];
       let offset = 3 + 1 + blbSize.length + 1 + blbFormat.length + 1;
       let blbBegin = message.current + offset;
-      let blbEnd = blbBegin + parseInt(blbSize);
+      let blbEnd = blbFormat == 'E' ? blbBegin + parseInt(blbSize) : message.next;
       let blbImage = {
         content: message.content.substring(blbBegin, blbEnd),
         format: blbFormat
