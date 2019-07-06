@@ -2,12 +2,15 @@ var body = document.body.innerText;
 
 function isEdifact(text) {
   // Do not support optional UNA segment
-  let pattern = /^UN[BGH]\+/i;
+  let pattern = /^(UN[BGH]\+|''Response:)/i;
   return pattern.test(text);
 }
 
 function normalize(text) {
-  let normalized = text.replace(/\r?\n+/gm,'')
+  let normalized = text.replace(/''Response:/gm, '')
+                       .replace(/''End.*/gm, '')
+                       .replace(/''/gm, '')
+                       .replace(/\r?\n+/gm,'')
                        .replace(/'&/gm,'\'')
                        .replace(/\\([^\\])/gm,"$1");
   return normalized;
@@ -137,6 +140,14 @@ function edifact2json(text) {
   return result;
 }
 
+function escapeHTML(str) {
+  return str.replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+}
+
 function displayString(str, level) {
   return `
 <div class="edifact-level-${level}">
@@ -150,11 +161,7 @@ function displayBinary(str, level) {
   return `
 <div class="edifact-level-${level}">
   <span class="edifact-binary">
-    ${str.replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;")}
+    ${escapeHTML(str)}
   </span>
 </div>`.trim();
 }
@@ -268,7 +275,7 @@ function edifact2html(text) {
 <div class="edifact-header">
 </div>
 <div class="edifact-raw-content">
-  <pre>${text}</pre>
+  <pre>${escapeHTML(text)}</pre>
 </div>
 <div class="edifact-pretty-content">
   ${display(jsonObject, 0, "")}
