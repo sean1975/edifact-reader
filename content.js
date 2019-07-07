@@ -208,41 +208,55 @@ function displayXML(xmlString, level) {
   return displayXMLNode(doc, level);
 }
 
+function displayUNH(name, level) {
+  let elements = name.split('+');
+  let components = elements[2].split(':');
+  let type = components[0];
+  let ver = components[1];
+  let rev = components[2];
+  let org = components[3];
+  value = `+${elements[1]}+<span class="edifact-message-type">${type}</span>:<span class="edifact-message-version">${ver}</span>:<span class="edifact-message-revision">${rev}</span>:<span class="edifact-message-organization">${org}</span>`.trim();
+  for (let i=3; i<elements.length; i++) {
+    value += `+${elements[i]}`.trim();
+  }
+  return value;
+}
+
 var id = 0;
 
-function displayObject(jsonObject, level) {
+function displaySegment(name, level) {
   id++;
-  let tag = name.substring(0,3);
+  let tag = name.substring(0, 3);
   let value = name.substring(3);
-  if (tag == 'UNH') {
-    let elements = name.split('+');
-    let components = elements[2].split(':');
-    let type = components[0];
-    let ver = components[1];
-    let rev = components[2];
-    let org = components[3];
-    value = `+${elements[1]}+<span class="edifact-message-type">${type}</span>:<span class="edifact-message-version">${ver}</span>:<span class="edifact-message-revision">${rev}</span>:<span class="edifact-message-organization">${org}</span>
-`.trim();
-    for (let i=3; i<elements.length; i++) {
-      value += `+${elements[i]}`.trim();
-    }
-  }
-  let result = `
-<div class="edifact-level-${level}">
+  return `
   <input id="${id + '-' + tag}" type="checkbox" checked>
   <label for="${id + '-' + tag}">
     <span class="edifact-segment">
-      <span class="edifact-segment-tag">${tag}</span><span class="edifact-data-elements">${value}</span>
+      <span class="edifact-segment-tag">
+        ${tag}
+      </span>
+      <span class="edifact-data-elements">
+        ${tag == 'UNH' ? displayUNH(name, level) : value}
+      </span>
     </span>
   </label>
+`.trim();
+}
+
+function displayObject(name, jsonObject, level) {
+  let tag = name.substring(0, 3);
+  let value = name.substring(3);
+  let result = `
+<div class="edifact-level-${level}">
+  ${displaySegment(name, level)}
   <div>
 `.trim();
   if (tag == 'DCX') {
-    result += displayXML(jsonObject[name], level+1);
+    result += displayXML(jsonObject, level+1);
   } else if (tag == 'BLB' && value.split('+')[2] == 'B') {
-    result += displayBinary(jsonObject[name], level+1);
+    result += displayBinary(jsonObject, level+1);
   } else {
-    result += display(jsonObject[name], level+1);
+    result += display(jsonObject, level+1);
   }
   result += `
   </div>
@@ -257,12 +271,12 @@ function display(jsonObject, level) {
   }
   if (jsonObject && typeof jsonObject === 'object') {
     if (jsonObject.constructor === Array) {
-      for (i in jsonObject) {
+      for (let i in jsonObject) {
         result += display(jsonObject[i], level);
       }
     } else if (jsonObject.constructor === Object) {
-      for (name in jsonObject) {
-        result += displayObject(jsonObject, level);
+      for (let name in jsonObject) {
+        result += displayObject(name, jsonObject[name], level);
       }
     }
   }
