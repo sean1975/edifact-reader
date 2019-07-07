@@ -1,8 +1,25 @@
-div.edifact-raw-content {
+.edifact-header {
+  background-color: #ccc;
+  border-bottom: 3px solid black;
+  padding: 0.5em;
+  margin-bottom: 1em;
+}
+.edifact-raw-content {
+  margin-inline-start: 1em;
   display: none;
+}
+.edifact-pretty-content {
+  margin-inline-start: 1em;
 }
 div.edifact-level-0 div[class|="edifact-level"] {
   padding-left: 30px;
+}
+input[type='button'] {
+  margin: 0;
+  text-decoration: none;
+  font-size: 1rem;
+  cursor: pointer;
+  text-align: center;
 }
 input[type='checkbox'] {
   display: none;

@@ -273,6 +273,26 @@ function edifact2html(text) {
   let jsonObject = edifact2json(text);
   return `
 <div class="edifact-header">
+  <input class="edifact-pretty-content" type="button" value="Display Original Content" onclick="
+var nodes = document.getElementsByClassName('edifact-pretty-content');
+for (let i=0; i<nodes.length; i++) {
+  nodes[i].style.display = 'none';
+}
+nodes = document.getElementsByClassName('edifact-raw-content');
+for (let i=0; i<nodes.length; i++) {
+  nodes[i].style.display = 'block';
+}
+">
+  <input class="edifact-raw-content" type="button" value="Display HTML Content" onclick="
+var nodes = document.getElementsByClassName('edifact-raw-content');
+for (let i=0; i<nodes.length; i++) {
+  nodes[i].style.display = 'none';
+}
+nodes = document.getElementsByClassName('edifact-pretty-content');
+for (let i=0; i<nodes.length; i++) {
+  nodes[i].style.display = 'block';
+}
+">
 </div>
 <div class="edifact-raw-content">
   <pre>${escapeHTML(text)}</pre>
