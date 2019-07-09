@@ -1,5 +1,3 @@
-var body = document.body.innerText;
-
 function isEdifact(text) {
   // Do not support optional UNA segment
   let pattern = /^(UN[BGH]\+|''Response:)/i;
@@ -287,26 +285,7 @@ function edifact2html(text) {
   let jsonObject = edifact2json(text);
   return `
 <div class="edifact-header">
-  <input class="edifact-pretty-content" type="button" value="Display Original Content" onclick="
-var nodes = document.getElementsByClassName('edifact-pretty-content');
-for (let i=0; i<nodes.length; i++) {
-  nodes[i].style.display = 'none';
-}
-nodes = document.getElementsByClassName('edifact-raw-content');
-for (let i=0; i<nodes.length; i++) {
-  nodes[i].style.display = 'block';
-}
-">
-  <input class="edifact-raw-content" type="button" value="Display HTML Content" onclick="
-var nodes = document.getElementsByClassName('edifact-raw-content');
-for (let i=0; i<nodes.length; i++) {
-  nodes[i].style.display = 'none';
-}
-nodes = document.getElementsByClassName('edifact-pretty-content');
-for (let i=0; i<nodes.length; i++) {
-  nodes[i].style.display = 'block';
-}
-">
+  <input id="btnDisplayMode" class="edifact-pretty-content" type="button" value="Display Original Content">
 </div>
 <div class="edifact-raw-content">
   <pre>${escapeHTML(text)}</pre>
@@ -317,9 +296,35 @@ for (let i=0; i<nodes.length; i++) {
 `;
 }
 
+function initButtons() {
+  document.getElementById('btnDisplayMode').onclick = function(btnDisplayMode) {
+    let displayMode = this.className;
+    let nodes = document.getElementsByClassName(displayMode);
+    for (let i=0; i<nodes.length; i++) {
+      nodes[i].style.display = 'none';
+    }
+    if (displayMode == 'edifact-pretty-content') {
+      this.className = 'edifact-raw-content';
+      this.value = 'Display HTML Content';
+    } else {
+      this.className = 'edifact-pretty-content';
+      this.value = 'Display Original Content';
+    }
+    nodes = document.getElementsByClassName(this.className);
+    for (let i=0; i<nodes.length; i++) {
+      nodes[i].style.display = 'block';
+    }
+  }
+}
+
+// main program
+
+var body = document.body.innerText;
+
 if (isEdifact(body)) {
   let htmlContent = edifact2html(body);
   document.body.innerHTML = htmlContent;
+  initButtons();
 } else {
   console.log("NOT Edifact");
 }
