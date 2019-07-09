@@ -26,9 +26,11 @@ function parseGCX(image) {
       current: next,
       next: 0
     }
+    let sbrResult = {};
+    sbrResult[segment.substring(offset)] = parseUNH(message);
     let result = {};
-    result[segment.substring(offset)] = parseUNH(message);
-    return result;
+    result[segment.substring(0, offset)] = sbrResult;
+    return [result];
   } else {
     return "";
   }
@@ -68,12 +70,15 @@ function parseUNH(message) {
     let elements = segment.split('+');
     if (elements[0] == 'UNT') {
       console.log(segment);
+      result.push(segment);
       message.current = message.next + 1;
       break;
     } else if (elements[0] == 'DCX') {
-      let dcxImage = segment.split('+')[2];
+      let dcxImage = elements[2];
       console.log("DCX " + dcxImage);
-      result.push({"DCX": dcxImage});
+      let dcxResult = {};
+      dcxResult[elements[0] + "+" + elements[1] + "+"] = dcxImage;
+      result.push(dcxResult);
     } else if (elements[0] == 'BLB') {
       let blbSize = elements[1];
       let blbFormat = elements[2];
@@ -99,7 +104,11 @@ function parseUNH(message) {
         format: gcxFormat
       };
       console.log("GCX " + gcxImage.content);
-      result.push({"GCX": parseGCX(gcxImage)});
+      let gcxResult = {};
+      gcxResult[elements[0] + "+" + elements[1] + "+"] = parseGCX(gcxImage);
+      let len = gcxResult[elements[0] + "+" + elements[1] + "+"].length;
+      gcxResult[elements[0] + "+" + elements[1] + "+"][len] = "+" + elements[1] + "+" + elements[0];
+      result.push(gcxResult);
       message.next = gcxEnd + 1 + gcxSize.length + 1 + 3;
     } else if (segment.length > 0) {
       result.push(segment);
@@ -147,12 +156,21 @@ function escapeHTML(str) {
 }
 
 function displayString(str, level) {
-  return `
+  if (str.startsWith("+")) {
+    return `
+<div class="edifact-level-${level}">
+  <span class="edifact-segment">
+    <span class="edifact-data-elements">${str.substring(0, str.length-3)}</span><span class="edifact-segment-tag">${str.substr(-3)}</span>
+  </span>
+</div>`.trim();
+  } else {
+    return `
 <div class="edifact-level-${level}">
   <span class="edifact-segment">
     <span class="edifact-segment-tag">${str.substring(0,3)}</span><span class="edifact-data-elements">${str.substring(3)}</span>
   </span>
 </div>`.trim();
+  }
 }
 
 function displayBinary(str, level) {
