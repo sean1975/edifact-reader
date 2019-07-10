@@ -248,12 +248,7 @@ function displaySegment(name, level) {
   <input id="${id + '-' + tag}" type="checkbox" checked>
   <label for="${id + '-' + tag}">
     <span class="edifact-segment">
-      <span class="edifact-segment-tag">
-        ${tag}
-      </span>
-      <span class="edifact-data-elements">
-        ${tag == 'UNH' ? displayUNH(name, level) : value}
-      </span>
+      <span class="edifact-segment-tag">${tag}</span><span class="edifact-data-elements">${tag == 'UNH' ? displayUNH(name, level) : value}</span>
     </span>
   </label>
 `.trim();
