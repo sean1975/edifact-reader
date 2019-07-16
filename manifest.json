@@ -10,8 +10,8 @@
                 "https://loggingfacility.amadeus.com/v3/*format=tts"
             ],
             "run_at": "document_idle",
-            "css": ["edifact.css"],
-            "js": ["content.js"]
+            "css": ["css/edifact.css"],
+            "js": ["src/content.js"]
         }
     ],
     "manifest_version": 2
